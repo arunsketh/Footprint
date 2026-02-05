@@ -114,7 +114,7 @@ def process_image_data(image_bytes, contact_width_mm, threshold_percent, tyre_na
         array_listF =  [np.logical_or(arr2D_TL_Flp_Fill, np.flipud(arr2D_TL_Act_Fill)),
                         np.logical_or(arr2D_TR_Flp_Fill, np.flipud(arr2D_TR_Act_Fill)),
                         np.logical_or(arr2D_BL_Flp_Fill, np.flipud(arr2D_BL_Act_Fill)),
-                        np.logical_or(arr2D_BR_Flp_Fill, np.flipud(arr2D_BR_Act_Fill))]     
+                        np.logical_or(arr2D_BR_Flp_Fill, np.flipud(arr2D_BR_Act_Fill))]      
         
         # Recombine the fully processed quadrants into the final image
         # Because we sliced explicitly, these stacks will match perfectly.
@@ -200,57 +200,36 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- ALWAYS VISIBLE INSTRUCTIONS ---
-st.markdown("## Tyre Contact Area Generator \n:red[**IMPORTANT INSTRUCTIONS - PLEASE READ BEFORE UPLOADING**]")  
-
-# Instructions container
-# Instructions container
-with st.container():
-    # Create 3 columns: Large text column, small image 1, small image 2
-    col_text, col_img1, col_img2 = st.columns([6, 1, 1])
-    
-    with col_text:
-        # Fixed the red text syntax here
-        st.markdown(""" 
-        1. **Image Prep:** Make sure the image is aligned properly, with the maximum contact length in the middle of the horizontal page. Remove all additional or unnecessary black spots.
-        2. **Parameters:** Accuracy in contact width is paramount for area calculations. Exercise extreme precision during your measurements.
-        3. **Ink Quality:** If you think a contact should be there but the ink is faint, **fill it using Paint/Snipping Tool** before uploading.
-        4. **Black Recognition:** Modulate the threshold settings until the processed image achieves optimal clarity and definition
-        """)
-        
-    with col_img1:
-        st.image("image_02.png", caption="✅ Correct Alignment", use_column_width=True)
-
-    with col_img2:
-        st.image("image_01.png", caption="❌ Incorrect Alignment", use_column_width=True)
-
-# ------------------------------------
-
 # Initialize session state to hold the results
 if 'final_figure' not in st.session_state:
     st.session_state.final_figure = None
 
-# Sidebar for user inputs
-with st.sidebar:
-    st.header("⚙️ Parameters")
-    
-    uploaded_file = st.file_uploader("Select Image (PNG/JPG)", type=["png", "jpg", "jpeg"])
-    contact_width = st.number_input("Contact Width (mm)", min_value=1.0, value=150.0, step=1.0)
-    threshold = st.slider("Black Recognition % (0-100)", min_value=0, max_value=100, value=60)
-    tyre_name_input = st.text_input("Tyre & OST Name (Optional)")
-    process_button = st.button("Process Image", type="primary")
+# --- Helper Functions for Display ---
 
-# --- Main App Logic ---
-if process_button:
-    if uploaded_file is not None:
-        image_bytes = uploaded_file.getvalue()
-        with st.spinner('Analyzing image...'):
-            st.session_state.final_figure = process_image_data(image_bytes, contact_width, threshold, tyre_name_input)
-    else:
-        st.warning("Please upload an image file first.")
+def show_instructions():
+    """Displays the instruction text and images"""
+    st.markdown(":red[**IMPORTANT INSTRUCTIONS - PLEASE READ BEFORE UPLOADING**]")  
+    with st.container():
+        # Create 3 columns: Large text column, small image 1, small image 2
+        col_text, col_img1, col_img2 = st.columns([6, 1, 1])
+        
+        with col_text:
+            st.markdown(""" 
+            1. **Image Prep:** Make sure the image is aligned properly, with the maximum contact length in the middle of the horizontal page. Remove all additional or unnecessary black spots.
+            2. **Parameters:** Accuracy in contact width is paramount for area calculations. Exercise extreme precision during your measurements.
+            3. **Ink Quality:** If you think a contact should be there but the ink is faint, **fill it using Paint/Snipping Tool** before uploading.
+            4. **Black Recognition:** Modulate the threshold settings until the processed image achieves optimal clarity and definition
+            """)
+            
+        with col_img1:
+            # Note: Ensure these images exist in your directory or use placeholders
+            st.image("image_02.png", caption="✅ Correct Alignment", use_column_width=True)
 
-# Display the resulting figure if it exists in the session state
-if st.session_state.final_figure is not None:
+        with col_img2:
+            st.image("image_01.png", caption="❌ Incorrect Alignment", use_column_width=True)
+
+def show_results(tyre_name_input):
+    """Displays the result plot and download button"""
     st.subheader("Analysis Results")
     st.pyplot(st.session_state.final_figure)
     
@@ -270,3 +249,37 @@ if st.session_state.final_figure is not None:
             file_name=file_name,
             mime="image/png"
         )
+
+# --- Sidebar Inputs ---
+with st.sidebar:
+    st.header("⚙️ Parameters")
+    
+    uploaded_file = st.file_uploader("Select Image (PNG/JPG)", type=["png", "jpg", "jpeg"])
+    contact_width = st.number_input("Contact Width (mm)", min_value=1.0, value=150.0, step=1.0)
+    threshold = st.slider("Black Recognition % (0-100)", min_value=0, max_value=100, value=60)
+    tyre_name_input = st.text_input("Tyre & OST Name (Optional)")
+    process_button = st.button("Process Image", type="primary")
+
+# --- Logic to Process Image ---
+if process_button:
+    if uploaded_file is not None:
+        image_bytes = uploaded_file.getvalue()
+        with st.spinner('Analyzing image...'):
+            st.session_state.final_figure = process_image_data(image_bytes, contact_width, threshold, tyre_name_input)
+    else:
+        st.warning("Please upload an image file first.")
+
+# --- MAIN LAYOUT LOGIC ---
+
+# 1. Title is ALWAYS at the top
+st.markdown("## Tyre Contact Area Generator") 
+
+# 2. Check if we have results to determine order
+if st.session_state.final_figure is not None:
+    # If Processed: Show Results TOP, Instructions BOTTOM
+    show_results(tyre_name_input)
+    st.markdown("---") # Visual separator
+    show_instructions()
+else:
+    # If Not Processed: Show Instructions TOP
+    show_instructions()
