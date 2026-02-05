@@ -15,7 +15,7 @@ def process_image_data(image_bytes, contact_width_mm, threshold_percent, tyre_na
     try:
         threshold_limit = int(float(threshold_percent) * 2.55)
 
-        # Open image from in-memory bytes and convert to grayscale
+        # Open image from in-memory bytes and convert to grayscalee
         temp = Image.open(io.BytesIO(image_bytes)).convert('L')
 
         # Apply median filter to reduce noise
@@ -261,6 +261,9 @@ with st.sidebar:
     threshold = st.slider("Black Recognition % (0-100)", min_value=0, max_value=100, value=60)
     tyre_name_input = st.text_input("Tyre & OST Name (Optional)")
     process_button = st.button("Process Image", type="primary")
+    
+# 1. Title is ALWAYS at the top
+st.markdown("## Tyre Contact Area Generator")
 
 # --- Logic to Process Image ---
 if process_button:
@@ -273,8 +276,7 @@ if process_button:
 
 # --- MAIN LAYOUT LOGIC ---
 
-# 1. Title is ALWAYS at the top
-st.markdown("## Tyre Contact Area Generator") 
+
 
 # 2. Check if we have results to determine order
 if st.session_state.final_figure is not None:
