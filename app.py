@@ -208,7 +208,7 @@ if 'final_figure' not in st.session_state:
 
 def show_instructions():
     """Displays the instruction text and images"""
-    st.markdown(":red[**IMPORTANT INSTRUCTIONS - PLEASE READ BEFORE UPLOADING**]")  
+    #st.markdown(":red[**IMPORTANT INSTRUCTIONS - PLEASE READ BEFORE UPLOADING**]")  
     with st.container():
         # Create 3 columns: Large text column, small image 1, small image 2
         col_text, col_img1, col_img2 = st.columns([6, 1, 1])
