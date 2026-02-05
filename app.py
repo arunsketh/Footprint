@@ -215,6 +215,7 @@ def show_instructions():
         
         with col_text:
             st.markdown(""" 
+            :red[**IMPORTANT INSTRUCTIONS - PLEASE READ BEFORE UPLOADING**]  
             **Scanned footprint is better for accuracy than the photographed footprint**.  
             **Image Prep:** Make sure the image is aligned properly, with the maximum contact length in the middle of the horizontal page. Remove all additional or unnecessary black spots.  
             **Parameters:** Accuracy in contact width is paramount for area calculations. Exercise extreme precision during your measurements.  
