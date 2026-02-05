@@ -215,11 +215,11 @@ def show_instructions():
         
         with col_text:
             st.markdown(""" 
-            ** Scanned footprints are better for accuracy than the photographed footprints **
-            1. **Image Prep:** Make sure the image is aligned properly, with the maximum contact length in the middle of the horizontal page. Remove all additional or unnecessary black spots.
-            2. **Parameters:** Accuracy in contact width is paramount for area calculations. Exercise extreme precision during your measurements.
-            3. **Ink Quality:** If you think a contact should be there but the ink is faint, **fill it using Paint/Snipping Tool** before uploading.
-            4. **Black Recognition:** Modulate the threshold settings until the processed image achieves optimal clarity and definition.
+            **Scanned footprints are better for accuracy than the photographed footprints**
+            **Image Prep:** Make sure the image is aligned properly, with the maximum contact length in the middle of the horizontal page. Remove all additional or unnecessary black spots.
+            **Parameters:** Accuracy in contact width is paramount for area calculations. Exercise extreme precision during your measurements.
+            **Ink Quality:** If you think a contact should be there but the ink is faint, **fill it using Paint/Snipping Tool** before uploading.
+            **Black Recognition:** Modulate the threshold settings until the processed image achieves optimal clarity and definition.
             """)
             
         with col_img1:
