@@ -206,9 +206,10 @@ if 'final_figure' not in st.session_state:
 
 # --- Helper Functions for Display ---
 
+import os
+
 def show_instructions():
-    """Displays the instruction text and images"""
-    #st.markdown(":red[**IMPORTANT INSTRUCTIONS - PLEASE READ BEFORE UPLOADING**]")  
+    """Displays the instruction text and images safely"""
     with st.container():
         # Create 3 columns: Large text column, small image 1, small image 2
         col_text, col_img1, col_img2 = st.columns([6, 1, 1])
@@ -224,12 +225,17 @@ def show_instructions():
             """)
             
         with col_img1:
-            # Note: Ensure these images exist in your directory or use placeholders
-            st.image("image_02.png", caption="✅ Correct Alignment", use_column_width=True)
+            # Check if file exists to prevent Streamlit Cloud crashes
+            if os.path.exists("image_02.png"):
+                st.image("image_02.png", caption="✅ Correct Alignment", use_container_width=True)
+            else:
+                st.warning("✅ Correct Alignment (Image Missing)")
 
         with col_img2:
-            st.image("image_01.png", caption="❌ Incorrect Alignment", use_column_width=True)
-
+            if os.path.exists("image_01.png"):
+                st.image("image_01.png", caption="❌ Incorrect Alignment", use_container_width=True)
+            else:
+                st.warning("❌ Incorrect Alignment (Image Missing)")
 def show_results(tyre_name_input):
     """Displays the result plot and download button"""
     st.subheader("Analysis Results")
