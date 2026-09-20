@@ -144,33 +144,37 @@ def process_image_data(image_bytes, contact_width_mm, threshold_percent, tyre_na
         # --- Plotting ---
         height, width = temp.size
         font_number = min(int(height / 30), 13)
-        result_text_offset_y= -(0.02*font_number)
+        result_text_offset_y = -(0.02 * font_number)
         result_text_offset_x = 0.5
         
-        fig, ax = plt.subplots(1, 3, figsize=(12, 4))
-        fig.tight_layout(pad=2.0)
+        # Increased height slightly to accommodate the title
+        fig, ax = plt.subplots(1, 3, figsize=(12, 5)) 
 
         title = f"{tyre_name} | Footprint Analysis" if tyre_name else "Footprint Analysis"
-        fig.suptitle(title, fontsize=font_number + 4, fontweight='bold', color='blue')
+        # Pushed the main title up slightly using the 'y' parameter
+        fig.suptitle(title, fontsize=font_number + 4, fontweight='bold', color='blue', y=0.98)
 
         # Original Image
         ax[0].imshow(temp, cmap='gray')
         ax[0].set_title("Original Image", fontsize=font_number, fontweight='bold', color='green')
         ax[0].axis("off")
-        ax[0].text(result_text_offset_x,result_text_offset_y, f"Contact Width: {contact_width_mm} mm", transform=ax[0].transAxes, ha='center', fontsize=int(font_number*0.9), color='green')
-        ax[0].text(result_text_offset_x,result_text_offset_y-0.2, f"Contact Length: {contact_length_mm} mm", transform=ax[0].transAxes, ha='center', fontsize=int(font_number*0.9))
+        ax[0].text(result_text_offset_x, result_text_offset_y, f"Contact Width: {contact_width_mm} mm", transform=ax[0].transAxes, ha='center', fontsize=int(font_number*0.9), color='green')
+        ax[0].text(result_text_offset_x, result_text_offset_y - 0.2, f"Contact Length: {contact_length_mm} mm", transform=ax[0].transAxes, ha='center', fontsize=int(font_number*0.9))
 
         # Processed (B&W) Image
         ax[1].imshow(imx3, cmap='gray')
         ax[1].set_title("Processed Image", fontsize=font_number, fontweight='bold')
         ax[1].axis("off")
-        ax[1].text(result_text_offset_x,result_text_offset_y, f"Net Area: {net_area_in2} sq.in", transform=ax[1].transAxes, ha='center', fontsize=int(font_number*0.9))
+        ax[1].text(result_text_offset_x, result_text_offset_y, f"Net Area: {net_area_in2} sq.in", transform=ax[1].transAxes, ha='center', fontsize=int(font_number*0.9))
 
         # Filled Image
         ax[2].imshow(arr2D3, cmap='gray')
         ax[2].set_title("Filled Image", fontsize=font_number, fontweight='bold')
         ax[2].axis("off")
-        ax[2].text(result_text_offset_x,result_text_offset_y, f"Gross Area: {gross_area_in2} sq.in", transform=ax[2].transAxes, ha='center', fontsize=int(font_number*0.9))
+        ax[2].text(result_text_offset_x, result_text_offset_y, f"Gross Area: {gross_area_in2} sq.in", transform=ax[2].transAxes, ha='center', fontsize=int(font_number*0.9))
+
+        # Call tight_layout AFTER all text and titles have been added to the figure
+        fig.tight_layout(pad=2.0)
 
         return fig
 
@@ -240,7 +244,7 @@ def show_results(tyre_name_input):
     """Displays the result plot and download button"""
     st.subheader("Analysis Results")
     
-    # FIX: Render the static image bytes instead of calling Pyplot repeatedly
+    # Render the static image bytes instead of calling Pyplot repeatedly
     st.image(st.session_state.final_figure, use_container_width=True)
     
     # Generate a filename
@@ -251,7 +255,7 @@ def show_results(tyre_name_input):
     with col1:
         st.download_button(
             label="💾 Download Result Image",
-            data=st.session_state.final_figure, # FIX: Pass the raw bytes we generated previously
+            data=st.session_state.final_figure,
             file_name=file_name,
             mime="image/png"
         )
@@ -266,7 +270,7 @@ with st.sidebar:
     tyre_name_input = st.text_input("Tyre & OST Name (Optional)")
     process_button = st.button("Process Image", type="primary")
     
-# 1. Title is ALWAYS at the top
+# Title is ALWAYS at the top
 st.markdown("## Tyre Contact Area Generator")
 
 # --- Logic to Process Image ---
@@ -276,7 +280,7 @@ if process_button:
         with st.spinner('Analyzing image...'):
             fig = process_image_data(image_bytes, contact_width, threshold, tyre_name_input)
             if fig is not None:
-                # FIX: Extract the image bytes immediately and store THAT in session state
+                # Extract the image bytes immediately and store THAT in session state
                 # This breaks the link to Matplotlib's state machine, stopping overlap issues
                 st.session_state.final_figure = save_plot_to_buffer(fig).getvalue()
                 
@@ -287,7 +291,7 @@ if process_button:
 
 # --- MAIN LAYOUT LOGIC ---
 
-# 2. Check if we have results to determine order
+# Check if we have results to determine order
 if st.session_state.final_figure is not None:
     # If Processed: Show Results TOP, Instructions BOTTOM
     show_results(tyre_name_input)
