@@ -4,6 +4,7 @@ from PIL import Image, ImageFilter
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import io
+import os
 
 # --- Core Image Processing Logic ---
 
@@ -206,8 +207,6 @@ if 'final_figure' not in st.session_state:
 
 # --- Helper Functions for Display ---
 
-import os
-
 def show_instructions():
     """Displays the instruction text and images safely"""
     with st.container():
@@ -236,14 +235,13 @@ def show_instructions():
                 st.image("image_01.png", caption="❌ Incorrect Alignment", use_container_width=True)
             else:
                 st.warning("❌ Incorrect Alignment (Image Missing)")
+
 def show_results(tyre_name_input):
     """Displays the result plot and download button"""
     st.subheader("Analysis Results")
-    st.pyplot(st.session_state.final_figure)
     
-    # --- DOWNLOAD BUTTON LOGIC ---
-    # Create a buffer for the image
-    plot_buffer = save_plot_to_buffer(st.session_state.final_figure)
+    # FIX: Render the static image bytes instead of calling Pyplot repeatedly
+    st.image(st.session_state.final_figure, use_container_width=True)
     
     # Generate a filename
     file_name = f"{tyre_name_input if tyre_name_input else 'Tyre_Analysis'}.png"
@@ -253,7 +251,7 @@ def show_results(tyre_name_input):
     with col1:
         st.download_button(
             label="💾 Download Result Image",
-            data=plot_buffer,
+            data=st.session_state.final_figure, # FIX: Pass the raw bytes we generated previously
             file_name=file_name,
             mime="image/png"
         )
@@ -276,13 +274,18 @@ if process_button:
     if uploaded_file is not None:
         image_bytes = uploaded_file.getvalue()
         with st.spinner('Analyzing image...'):
-            st.session_state.final_figure = process_image_data(image_bytes, contact_width, threshold, tyre_name_input)
+            fig = process_image_data(image_bytes, contact_width, threshold, tyre_name_input)
+            if fig is not None:
+                # FIX: Extract the image bytes immediately and store THAT in session state
+                # This breaks the link to Matplotlib's state machine, stopping overlap issues
+                st.session_state.final_figure = save_plot_to_buffer(fig).getvalue()
+                
+                # Close the matplotlib figure to clear memory and flush state
+                plt.close(fig)
     else:
         st.warning("Please upload an image file first.")
 
 # --- MAIN LAYOUT LOGIC ---
-
-
 
 # 2. Check if we have results to determine order
 if st.session_state.final_figure is not None:
